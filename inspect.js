@@ -24,17 +24,35 @@ var xPathFinder = xPathFinder || (() => {
         const contentNode   = document.getElementById(this.contentNode);
         const iframeNode    = window.frameElement || iframe;
         const contentString = iframeNode ? `Iframe: ${this.getXPath(iframeNode)}<br/>XPath: ${this.XPath}` : this.XPath;
-
+        const xpath_nodes = this.getElementsByXPath(contentString);
+        const xpath_content= xpath_nodes[0].textContent;
         if (contentNode) {
-          contentNode.innerHTML = contentString;
+          contentNode.innerHTML = "xpath1："+ contentString +xpath_content;          
+          this.options.clipboard && ( this.copyText(contentNode.innerHTML) );
         } else {
           const contentHtml = document.createElement('div');
-          contentHtml.innerHTML = contentString;
+          contentHtml.innerHTML ="xpath："+ contentString+xpath_content;
           contentHtml.id = this.contentNode;
-          document.body.appendChild(contentHtml);
+          document.body.appendChild(contentHtml);          
+          //innerHTML 没有html标签
+          this.options.clipboard && ( this.copyText(contentHtml.innerHTML) );
         }
-        this.options.clipboard && ( this.copyText(this.XPath) );
+        //有html标签
+        //this.options.clipboard && ( this.copyText(this.XPath+xpath_content) );
       }
+    }
+
+    getElementsByXPath(STR_XPATH) {
+      const xresult = document.evaluate(STR_XPATH, document, null, XPathResult.ANY_TYPE, null);
+      const xnodes = [];
+      const xres=xresult.iterateNext() ;
+      while (xres) {
+        xnodes.push(xres);
+        break;
+        //xres = xresult.iterateNext()
+      }
+
+      return xnodes;
     }
 
     getOptions() {
